@@ -9,5 +9,7 @@ services:
     envVars:
       - key: TELEGRAM_TOKEN
         sync: false
-      - key: WEBHOOK_URL
+      - key: PORT
+        sync: false
+      - key: RENDER_EXTERNAL_HOSTNAME
         sync: false
