@@ -1,16 +1,18 @@
+import os
 import random
 from pathlib import Path
 
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-TOKEN = "8412514934:AAEWziOaCr6-wtNMrBB-A37buX_iZvEeGK4"
+TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 
-async def villancico(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def carol(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     ruta = Path("files/")  # Cambia por tu carpeta
-    archivos_ogg = [f for f in ruta.iterdir() if f.is_file() and f.suffix == ".ogg"]
+    archivos_ogg = [f for f in ruta.iterdir() if f.is_file()
+                    and f.suffix == ".ogg"]
     file = random.choice(archivos_ogg)
     with open(file, "rb") as voice:
         await update.message.reply_voice(voice)
@@ -34,7 +36,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 app = ApplicationBuilder().token(TOKEN).build()
-app.add_handler(CommandHandler("villancico", villancico))
+app.add_handler(CommandHandler("villancico", carol))
 app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("help", help_command))
 app.run_polling()
