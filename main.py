@@ -1,3 +1,4 @@
+import logging
 import os
 import random
 from pathlib import Path
@@ -21,6 +22,10 @@ from telegram.ext import (
 
 from controllers import ChristmasDB
 
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+)
+logger = logging.getLogger(__name__)
 DB = ChristmasDB()
 TOKEN = os.getenv("TELEGRAM_TOKEN", "")
 WAITING_FOR_GIF = 1
@@ -428,14 +433,26 @@ async def show_leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 # ------------------ Configuración del bot ------------------
+async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Maneja errores no capturados"""
+    logger.error(f"Error no capturado: {context.error}")
+    if update and update.effective_message:
+        await update.effective_message.reply_text(
+            "❌ Ha ocurrido un error. Por favor, intenta de nuevo más tarde."
+        )
 
 
 def main():
+    """Función principal para iniciar el bot"""
     if not TOKEN:
-        print("❌ Error: TELEGRAM_TOKEN no está configurado.")
+        logger.error("❌ TELEGRAM_TOKEN no está configurado.")
         return
 
+    # Crear la aplicación
     app = ApplicationBuilder().token(TOKEN).build()
+
+    # Añadir manejador de errores
+    app.add_error_handler(error_handler)
 
     # Comandos básicos
     app.add_handler(CommandHandler("start", start))
@@ -468,8 +485,13 @@ def main():
         CallbackQueryHandler(vote_callback, pattern=r"^(vote:\d+|next|prev|counter)$")
     )
 
-    print("🤖 Bot iniciado...")
-    app.run_polling(allowed_updates=Update.ALL_TYPES)
+    logger.info("🤖 Bot iniciado...")
+
+    # Iniciar el bot
+    app.run_polling(
+        allowed_updates=Update.ALL_TYPES,
+        drop_pending_updates=True,  # Importante para Railway
+    )
 
 
 if __name__ == "__main__":
