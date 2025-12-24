@@ -491,7 +491,7 @@ def main():
     app.run_webhook(
         listen="0.0.0.0",
         port=int(os.getenv("PORT", 80)),
-        secret_token=os.getenv("TELEGRAM_TOKEN"),
+        secret_token="AecreTTok1enIHAveChangedByNow",
         webhook_url="https://mi-bot-telegram-2nba.onrender.com",
     )
 
